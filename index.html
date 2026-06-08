@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spider Scientific — Evidence Workspace V2</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <div class="brand-title">SPIDER<br>SCIENTIFIC</div>
+        <div class="brand-sub">BIOLOGICAL EVIDENCE WORKSPACE</div>
+      </div>
+    </div>
+    <div class="search">
+      <input id="searchInput" value="TP53" placeholder="Search symbol, alias, Ensembl, Entrez or UniProt">
+      <button id="searchBtn">/</button>
+      <div id="suggestions" class="suggestions"></div>
+    </div>
+    <div class="top-stats">
+      <div class="top-stat">
+        <span>RELATED</span>
+        <b id="topRelated">0</b>
+      </div>
+      <div class="top-stat">
+        <span>OVERLAPS</span>
+        <b id="topOverlaps">0</b>
+      </div>
+      <div class="top-stat">
+        <span>PATHWAYS</span>
+        <b id="topPathways">0</b>
+      </div>
+      <div class="top-stat">
+        <span>FUNCTIONS</span>
+        <b id="topFunctions">0</b>
+      </div>
+    </div>
+  </header>
+
+  <div class="status-strip" id="status">Ready. Backend: <span id="apiBaseText"></span></div>
+
+  <section class="main">
+    <aside class="sidebar">
+      <div class="nav-card">
+        <div class="nav-item active"><div class="icon">⌗</div><div><b>GENE GRAPH</b><small>Evidence-backed overlaps</small></div></div>
+        <div class="nav-item" id="saveProject"><div class="icon">□</div><div><b>SAVE PROJECT</b><small>Browser local save</small></div></div>
+        <div class="nav-item" id="exportJSON"><div class="icon">⇩</div><div><b>EXPORT JSON</b><small>Download evidence</small></div></div>
+        <div class="nav-item" id="exportPNG"><div class="icon">◎</div><div><b>EXPORT IMAGE</b><small>Browser print/save</small></div></div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">GWAS / GENE LIST</div>
+        <div class="side-sub">Paste genes separated by commas or lines</div>
+        <textarea id="gwasInput" placeholder="TGFB1&#10;SMAD3&#10;FOXP3"></textarea>
+        <button class="mini-btn" id="runGwas">Analyse list</button>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">API STATUS</div>
+        <div id="apiStatusBox" class="api-status"></div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-title">GRAPH STATS</div>
+        <div class="stat-row"><span>RELATED GENES</span><b id="statGenes">0</b></div>
+        <div class="stat-row"><span>OVERLAPS</span><b id="statOverlaps">0</b></div>
+        <div class="stat-row"><span>FUNCTIONS</span><b id="statFunctions">0</b></div>
+        <div class="stat-row"><span>PATHWAYS</span><b id="statPathways">0</b></div>
+      </div>
+    </aside>
+
+    <main>
+      <section class="graph-card" id="graphCard">
+        <div>
+          <div class="eyebrow">GENE-CENTRIC VIEW</div>
+          <h1 class="big-title">RELATED GENE GRAPH</h1>
+          <div class="graph-sub">ONLY GENES SURROUND THE CORE. FUNCTIONS AND PATHWAYS ARE METRICS BELOW.</div>
+          <div class="graph-count"><span>●</span> <span id="nodeCount">0 RELATED GENES</span> &nbsp; | &nbsp; <span id="overlapCount">0 OVERLAPS</span></div>
+        </div>
+        <div class="graph-area" id="graphArea"><div class="center-node"><div><b id="coreLabel">TP53</b><small id="coreName">Loading</small></div></div></div>
+        <div class="legend">
+          <h4>LEGEND</h4>
+          <div class="legend-row"><span class="legend-line" style="color:var(--green)"></span>Signaling</div>
+          <div class="legend-row"><span class="legend-line" style="color:var(--yellow)"></span>Overlap halo</div>
+          <div class="legend-row"><span class="legend-line" style="color:var(--purple)"></span>Development</div>
+          <div class="legend-row"><span class="legend-line" style="color:var(--orange)"></span>Growth</div>
+        </div>
+      </section>
+
+      <section class="metrics-grid" id="metricsGrid"></section>
+
+      <section class="bottom-card">
+        <div class="selected">
+          <h2 id="selectedSymbol">TP53</h2>
+          <div class="protein" id="selectedName">Tumor protein p53</div>
+          <div class="tags"><span class="tag" id="typeTag">Gene</span><span class="tag yellow" id="mainTag">Live Evidence</span></div>
+          <div class="id-row"><span>GENE ID</span><b id="geneId">-</b></div>
+          <div class="id-row"><span>ENSEMBL ID</span><b id="ensemblId">-</b></div>
+          <div class="id-row"><span>UNIPROT ID</span><b id="uniprotId">-</b></div>
+          <div class="id-row"><span>ORGANISM</span><b>Homo sapiens</b></div>
+          <p class="description" id="description">Search a gene to load evidence.</p>
+        </div>
+
+        <div>
+          <div class="tabs"><div class="tab2 active">EVIDENCE TRAIL</div><div class="tab2">FUNCTIONS</div><div class="tab2">PATHWAYS</div><div class="tab2">OVERLAPS</div></div>
+          <div class="evidence-box">
+            <div class="evidence-head"><h3>WHY THIS PLACEMENT?</h3><div class="evidence-number" id="evidenceTotal">0</div></div>
+            <div class="stackbar"><div></div><div></div><div></div><div></div></div>
+            <div id="processList"></div>
+          </div>
+        </div>
+
+        <div class="confidence">
+          <div class="side-title">CONFIDENCE SCORE</div>
+          <div class="gauge" id="gauge"></div>
+          <div class="gauge-score" id="confidenceScore">0.00</div>
+          <div style="color:var(--yellow);margin-top:4px" id="confidenceLabel">Evidence Loading</div>
+          <p style="color:#888;font-size:.78rem;line-height:1.5;margin-top:12px">Score combines STRING confidence with API coverage and overlap evidence.</p>
+        </div>
+      </section>
+
+      <section class="gwas-results card" id="gwasResults"></section>
+    </main>
+  </section>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
